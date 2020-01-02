@@ -26,7 +26,7 @@ services:
       hostname: php
       build:
         context: ./components/php
-        dockerfile: Dockerfile
+        dockerfile: components/php/Dockerfile1
         args:
           TIME_ZONE: ${GLOBAL_TIME_ZONE}
           CHANGE_SOURCE: ${GLOBAL_CHANGE_SOURCE}

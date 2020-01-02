@@ -1,0 +1,36 @@
+FROM centos:latest
+MAINTAINER WinJay <WinJayX@Gmail.com>
+ENV TZ=Asia/Shanghai
+RUN yum install epel-release -y && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
+
+RUN yum install -y gcc gcc-c++ make gd-devel libxml2-devel libcurl-devel libjpeg-devel libpng-devel openssl-devel sqlite-devel
+RUN yum -y install http://mirror.centos.org/centos-7/7.7.1908/cloud/x86_64/openstack-queens/oniguruma-6.7.0-1.el7.x86_64.rpm && \
+yum -y install http://mirror.centos.org/centos-7/7.7.1908/cloud/x86_64/openstack-queens/oniguruma-devel-6.7.0-1.el7.x86_64.rpm
+ADD php.tar.gz /tmp/
+
+
+RUN cd /tmp/php-7.4.1 && \
+    ./configure --prefix=/phpapp \
+    --with-config-file-path=/phpapp/etc \
+    --enable-fpm --enable-opcache \
+    --with-mysql --with-mysqli --with-pdo-mysql\
+    --with-openssl --with-zlib --with-curl --with-gd \
+    --with-jpeg-dir --with-png-dir --with-iconv --with-freetype-dir \
+    --enable-fpm --enable-zip --enable-mbstring \
+    --enable-mbstring --with-mcrypt --enable-hash && \
+    make -j 4 && make install
+
+ENV PATH $PATH:/phpapp/sbin:/phpapp/bin
+COPY ./config/php.ini /phpapp/etc
+COPY ./config/php-fpm.conf /phpapp/etc
+COPY ./config/www.conf //phpapp/etc/php-fpm.d
+
+
+RUN rm -rf /tmp/php* && yum clean all
+
+WORKDIR /phpapp
+EXPOSE 9000
+CMD ["./sbin/php-fpm", "-c", "/phpapp/etc/php-fpm.conf"]
+

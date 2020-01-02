@@ -1,35 +1,24 @@
-FROM centos:centos7.7.1908
+FROM centos:latest
 MAINTAINER WinJay <WinJayX@Gmail.com>
 ENV TZ=Asia/Shanghai
-RUN yum install epel-release -y && \
-    yum clean all && \
-    rm -rf /var/cache/yum/*
-
-RUN yum install -y gcc gcc-c++ make gd-devel libxml2-devel libcurl-devel libjpeg-devel libpng-devel openssl-devel sqlite-devel
-RUN yum -y install http://mirror.centos.org/centos-7/7.7.1908/cloud/x86_64/openstack-queens/oniguruma-6.7.0-1.el7.x86_64.rpm && \
-yum -y install http://mirror.centos.org/centos-7/7.7.1908/cloud/x86_64/openstack-queens/oniguruma-devel-6.7.0-1.el7.x86_64.rpm
-ADD php.tar.gz /tmp/
 
 
-RUN cd /tmp/php-7.4.1 && \
-    ./configure --prefix=/phpapp \
-    --with-config-file-path=/phpapp/etc \
-    --enable-fpm --enable-opcache \
-    --with-mysql --with-mysqli --with-pdo-mysql\
-    --with-openssl --with-zlib --with-curl --with-gd \
-    --with-jpeg-dir --with-png-dir --with-iconv --with-freetype-dir \
-    --enable-fpm --enable-zip --enable-mbstring \
-    --enable-mbstring --with-mcrypt --enable-hash && \
-    make -j 4 && make install
+# you need to install EPEL repository.
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  
+# remi-release - Configuration de YUM pour le dépôt remi
+RUN rpm -Uvh http://rpms.remirepo.net/enterprise/7/remi/x86_64//remi-release-7.7-1.el7.remi.noarch.rpm
+# Install remi-release rpm
+# RUN rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 
-ENV PATH $PATH:/phpapp/sbin:/phpapp/bin
-COPY ./config/php.ini /phpapp/etc
-COPY ./config/php-fpm.conf /phpapp/etc
-COPY ./config/www.conf //phpapp/etc/php-fpm.d
+RUN yum -y --nogpgcheck --enablerepo=remi-php74 install php php-fpm php-dba php-gd php-imap php-interbase php-intl \
+    php-ldap php-mbstring php-mcrypt php-mysqlnd php-odbc php-pdo_dblib \ 
+    php-pear php-pecl-apcu php-pecl-imagick php-pgsql php-phpdbg php-recode \
+    php-tidy php-bcmath php-pecl-zip php-opcache php-mailparse php-swoole
 
+RUN mkdir -p /run/php-fpm && touch /run/php-fpm/php-fpm.pid
 
-RUN rm -rf /tmp/php* && yum clean all
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-WORKDIR /phpapp
-EXPOSE 9000
-CMD ["./sbin/php-fpm", "-c", "/phpapp/etc/php-fpm.conf"]
+WORKDIR /opt
+# to run php-fpm foreground by force and allow-to-run-as-root
+CMD ["/usr/sbin/php-fpm","-F", "-R"]
