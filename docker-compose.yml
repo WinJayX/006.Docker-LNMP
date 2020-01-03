@@ -6,13 +6,12 @@ services:
   nginx:
       hostname: nginx
       build:
-        context: ./components/nginx
+        context: work/components/nginx
         dockerfile: Dockerfile
       ports:
         - "${HTTP_PORT1}:80"
-        - "${HTTP_PORT2}:8080"
       volumes:
-        - ${PROJECT_FOLDER}:/app
+        - ${PROJECT_FOLDER}:/nginxapp
         - ./work/components/nginx/log:/var/log/nginx
       restart: always
       privileged: true
@@ -25,13 +24,13 @@ services:
   php:
       hostname: php
       build:
-        context: ./components/php
-        dockerfile: components/php/Dockerfile1
+        context: work/components/php
+        dockerfile: Dockerfile
         args:
           TIME_ZONE: ${GLOBAL_TIME_ZONE}
           CHANGE_SOURCE: ${GLOBAL_CHANGE_SOURCE}
       volumes:
-        - ${PROJECT_FOLDER}:/app
+        - ${PROJECT_FOLDER}:/phpapp
         - ./work/components/php/log:/var/log
       restart: always
       privileged: true
@@ -43,6 +42,7 @@ services:
   ### Mysql container #########################################
 
   mariadb:
+      hostname: mariadb
       image: harbor.nercoa.com/winjay/mariadb:10.4.11
       ports:
         - "${MYSQL_PORT}:3306"
@@ -57,39 +57,6 @@ services:
       networks:
         net-lnmp:
           ipv4_address: 10.127.1.4
-
-  ### Redis container #########################################
-
-  redis:
-      image: redis:5.0.5
-      ports:
-        - "${REDIS_PORT}:6379"
-      volumes:
-        - ./work/components/redis/config/redis.conf:/usr/local/etc/redis/redis.conf
-        - ./work/components/redis/log/redis.log:/var/log/redis/redis.log
-      restart: always
-      privileged: true
-      networks:
-        net-lnmp:
-          ipv4_address: 10.127.1.5
-
-  ### Tools container #########################################
-
-  tools:
-      build:
-        context: ../build/tools
-        args:
-          TIME_ZONE: ${GLOBAL_TIME_ZONE}
-          CHANGE_SOURCE: ${GLOBAL_CHANGE_SOURCE}
-      volumes:
-        - ./work/components/tools/start.sh:/home/start.sh:rw
-        - ./work/components/tools/backup:/backup:rw
-        - ./work/components/tools/cron.d:/etc/cron.d:rw
-      restart: always
-      privileged: true
-      networks:
-        net-lnmp:
-          ipv4_address: 10.127.1.6
 
 networks:
   net-lnmp:

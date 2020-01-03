@@ -1,4 +1,4 @@
-FROM centos:latest
+FROM centos:centos7.7.1908
 MAINTAINER WinJay <WinJayX@Gmail.com>
 ENV TZ=Asia/Shanghai
 RUN yum install epel-release -y && \

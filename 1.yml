@@ -1,0 +1,32 @@
+  ### Redis container #########################################
+
+  redis:
+      image: redis:5.0.5
+      ports:
+        - "${REDIS_PORT}:6379"
+      volumes:
+        - ./work/components/redis/config/redis.conf:/usr/local/etc/redis/redis.conf
+        - ./work/components/redis/log/redis.log:/var/log/redis/redis.log
+      restart: always
+      privileged: true
+      networks:
+        net-lnmp:
+          ipv4_address: 10.127.1.5
+
+  ### Tools container #########################################
+
+  tools:
+      build:
+        context: build/tools
+        args:
+          TIME_ZONE: ${GLOBAL_TIME_ZONE}
+          CHANGE_SOURCE: ${GLOBAL_CHANGE_SOURCE}
+      volumes:
+        - ./work/components/tools/start.sh:/home/start.sh:rw
+        - ./work/components/tools/backup:/backup:rw
+        - ./work/components/tools/cron.d:/etc/cron.d:rw
+      restart: always
+      privileged: true
+      networks:
+        net-lnmp:
+          ipv4_address: 10.127.1.6
