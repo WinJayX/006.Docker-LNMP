@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/20191231_Docker-lnmp.iml" filepath="$PROJECT_DIR$/.idea/20191231_Docker-lnmp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Docker-lnmp.iml" filepath="$PROJECT_DIR$/.idea/Docker-lnmp.iml" />
     </modules>
   </component>
 </project>

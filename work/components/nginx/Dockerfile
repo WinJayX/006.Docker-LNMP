@@ -1,5 +1,6 @@
 FROM centos:centos7.7.1908
 MAINTAINER WinJay <WinJayX@Gmail.com>
+USER root
 ENV TZ=Asia/Shanghai
 RUN yum install -y gcc gcc-c++ make openssl-devel pcre-devel
 ADD nginx.tar.gz /tmp
